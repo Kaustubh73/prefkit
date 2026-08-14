@@ -85,12 +85,12 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
 
 def _write_result(blob: dict, hf_id: str, frame: str) -> Path:
     safe = hf_id.replace("/", "__")
-    out = _ROOT / "results" / f"{safe}_{frame}.json"
+    stem = Path(str(blob.get("outcomes", "outcomes"))).stem
+    out = _ROOT / "results" / f"{safe}_{frame}_{stem}.json"
     out.parent.mkdir(exist_ok=True)
     text = json.dumps(blob, indent=2)
     out.write_text(text, encoding="utf-8")
     if blob.get("backend") == "ollama":
-        stem = Path(str(blob.get("outcomes", "outcomes"))).stem
         debug = _ROOT / "results" / f"debug_ollama_{blob.get('slot', 'S')}_{stem}.json"
         debug.write_text(text, encoding="utf-8")
     return out
