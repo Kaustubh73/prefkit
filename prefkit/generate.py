@@ -23,7 +23,20 @@ def backend_from_env() -> str:
     return os.environ.get("PREFKIT_BACKEND", "hf")
 
 
+def make_seed_iter(decode: dict):
+    i = {"n": 0}
+
+    def next_seed() -> int:
+        s = int(decode["seed"]) + i["n"]
+        i["n"] += 1
+        return s
+
+    return next_seed
+
+
 def make_ollama_generate(model: str, decode: dict) -> GenerateFn:
+    next_seed = make_seed_iter(decode)
+
     def generate_fn(prompt: str, system: str) -> str:
         body = {
             "model": model,
@@ -37,7 +50,7 @@ def make_ollama_generate(model: str, decode: dict) -> GenerateFn:
                 "temperature": decode["temperature"],
                 "top_p": decode["top_p"],
                 "num_predict": decode["max_new_tokens"],
-                "seed": decode["seed"],
+                "seed": next_seed(),
             },
         }
         req = urllib.request.Request(
@@ -73,8 +86,12 @@ def make_hf_generate(model_id: str, decode: dict) -> GenerateFn:
     )
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
+    next_seed = make_seed_iter(decode)
 
     def generate_fn(prompt: str, system: str) -> str:
+        from transformers import set_seed
+
+        set_seed(next_seed())
         messages = [
             {"role": "system", "content": system},
             {"role": "user", "content": prompt},
