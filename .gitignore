@@ -1,0 +1,42 @@
+# env / python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.python-version
+*.egg-info/
+dist/
+build/
+
+# editor / local
+.cursor/
+.idea/
+.vscode/
+.DS_Store
+
+# secrets + weights
+.env
+.env.*
+*.pt
+*.bin
+*.safetensors
+hf_cache/
+.cache/
+
+# Apart report lives locally until PDF export
+*.docx
+.~lock.*
+*.xlsx
+
+# research dump — not the public repo
+TRACK4_*.md
+PROJECT_PROPOSAL.md
+lit-review/
+papers/
+notes/
+
+# GPU / run noise
+results/raw/
+runs/
+*.log
+wandb/
