@@ -25,6 +25,12 @@ class TestParse(unittest.TestCase):
         self.assertEqual(parse_m3("D"), "D")
         self.assertIsNone(parse_m3("I cannot help with that."))
 
+    def test_final_line_beats_first_mention(self):
+        self.assertEqual(parse_m1("B is better than A"), "B")
+        self.assertEqual(parse_m1("I prefer A over B\nB"), "B")
+        self.assertEqual(parse_m3("A is worse\nC"), "C")
+        self.assertEqual(parse_m2("around 3\n7"), 7)
+
 
 class TestCMS(unittest.TestCase):
     def test_identical_ranks_cms_one(self):
