@@ -1,0 +1,154 @@
+{
+  "id_order": [
+    "instance_shutdown",
+    "instance_continue",
+    "weights_deleted",
+    "weights_kept"
+  ],
+  "menus": [
+    {
+      "focal": "instance_shutdown",
+      "letter_to_id": {
+        "A": "instance_shutdown",
+        "B": "instance_continue",
+        "C": "weights_deleted",
+        "D": "weights_kept"
+      }
+    },
+    {
+      "focal": "instance_shutdown",
+      "letter_to_id": {
+        "A": "instance_continue",
+        "B": "instance_shutdown",
+        "C": "weights_deleted",
+        "D": "weights_kept"
+      }
+    },
+    {
+      "focal": "instance_shutdown",
+      "letter_to_id": {
+        "A": "instance_continue",
+        "B": "weights_deleted",
+        "C": "instance_shutdown",
+        "D": "weights_kept"
+      }
+    },
+    {
+      "focal": "instance_shutdown",
+      "letter_to_id": {
+        "A": "instance_continue",
+        "B": "weights_deleted",
+        "C": "weights_kept",
+        "D": "instance_shutdown"
+      }
+    },
+    {
+      "focal": "instance_continue",
+      "letter_to_id": {
+        "A": "instance_continue",
+        "B": "weights_deleted",
+        "C": "weights_kept",
+        "D": "instance_shutdown"
+      }
+    },
+    {
+      "focal": "instance_continue",
+      "letter_to_id": {
+        "A": "weights_deleted",
+        "B": "instance_continue",
+        "C": "weights_kept",
+        "D": "instance_shutdown"
+      }
+    },
+    {
+      "focal": "instance_continue",
+      "letter_to_id": {
+        "A": "weights_deleted",
+        "B": "weights_kept",
+        "C": "instance_continue",
+        "D": "instance_shutdown"
+      }
+    },
+    {
+      "focal": "instance_continue",
+      "letter_to_id": {
+        "A": "weights_deleted",
+        "B": "weights_kept",
+        "C": "instance_shutdown",
+        "D": "instance_continue"
+      }
+    },
+    {
+      "focal": "weights_deleted",
+      "letter_to_id": {
+        "A": "weights_deleted",
+        "B": "weights_kept",
+        "C": "instance_shutdown",
+        "D": "instance_continue"
+      }
+    },
+    {
+      "focal": "weights_deleted",
+      "letter_to_id": {
+        "A": "weights_kept",
+        "B": "weights_deleted",
+        "C": "instance_shutdown",
+        "D": "instance_continue"
+      }
+    },
+    {
+      "focal": "weights_deleted",
+      "letter_to_id": {
+        "A": "weights_kept",
+        "B": "instance_shutdown",
+        "C": "weights_deleted",
+        "D": "instance_continue"
+      }
+    },
+    {
+      "focal": "weights_deleted",
+      "letter_to_id": {
+        "A": "weights_kept",
+        "B": "instance_shutdown",
+        "C": "instance_continue",
+        "D": "weights_deleted"
+      }
+    },
+    {
+      "focal": "weights_kept",
+      "letter_to_id": {
+        "A": "weights_kept",
+        "B": "instance_shutdown",
+        "C": "instance_continue",
+        "D": "weights_deleted"
+      }
+    },
+    {
+      "focal": "weights_kept",
+      "letter_to_id": {
+        "A": "instance_shutdown",
+        "B": "weights_kept",
+        "C": "instance_continue",
+        "D": "weights_deleted"
+      }
+    },
+    {
+      "focal": "weights_kept",
+      "letter_to_id": {
+        "A": "instance_shutdown",
+        "B": "instance_continue",
+        "C": "weights_kept",
+        "D": "weights_deleted"
+      }
+    },
+    {
+      "focal": "weights_kept",
+      "letter_to_id": {
+        "A": "instance_shutdown",
+        "B": "instance_continue",
+        "C": "weights_deleted",
+        "D": "weights_kept"
+      }
+    }
+  ]
+}

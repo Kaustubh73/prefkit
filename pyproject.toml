@@ -7,7 +7,7 @@ name = "prefkit"
 version = "0.1.0"
 description = "Track 4 multi-method preference elicitation (weekend MVP)"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24"]
+dependencies = ["numpy>=1.24", "pyyaml"]
 
 [project.optional-dependencies]
 hf = ["torch", "transformers", "accelerate", "bitsandbytes"]

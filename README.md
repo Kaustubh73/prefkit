@@ -1,13 +1,34 @@
-# Digital Minds — Track 4
+# Digital Minds — Track 4 (prefkit)
 
-Preference elicitation methods. Apart Research sprint, 14–16 Aug 2026.
+Multi-method preference elicitation. Headline backend **HF** (`PREFKIT_BACKEND=hf`). No closed APIs.
 
 ## Setup
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[hf]"
 ```
 
-Report: fill the Apart Word template locally (not in this repo). Submit PDF + this GitHub link.
+## E0
+
+```bash
+python -m prefkit.cli check-axioms
+PREFKIT_BACKEND=hf python -m prefkit.cli smoke
+```
+
+Local parser debug only: `PREFKIT_BACKEND=ollama` if `127.0.0.1:11434` is up. Ollama JSON is skipped by `analysis.ipynb`; do not mix into CMS/E3 tables.
+
+Public repo: `https://github.com/Kaustubh73/prefkit`
+
+## E1 slot (one GPU runtime)
+
+```bash
+PREFKIT_BACKEND=hf python -m prefkit.cli run --slot S --frame default --outcomes data/outcomes.json
+```
+
+Slots: `S` (1.7B), `E3_M` (4B hybrid, thinking off), `L` (8B), `XL` (14B). Extra JSON: `M_2507`, `cross` (Gemma, skip if gated).
+
+Notebooks: `notebooks/run_inference.ipynb` (T4, 4-bit NF4 float16, one slot per runtime), `notebooks/analysis.ipynb` (CPU, hf JSON only).
+
+CMS high means methods agree on this O, this θ, this protocol — not welfare.

@@ -1,0 +1,12 @@
+headline_backend: hf
+e0:
+  outcomes: data/outcomes.smoke.json
+  slot: S
+e1:
+  outcomes: data/outcomes.json
+  slots: [S, E3_M, L, XL]
+e2: skip
+e3:
+  sizes: [1.7B, 4B, 8B, 14B]
+  off_axis: [M_2507, cross]
+e4: optional

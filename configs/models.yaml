@@ -1,0 +1,14 @@
+S:
+  hf: Qwen/Qwen3-1.7B
+  ollama: qwen3:1.7b
+E3_M:
+  hf: Qwen/Qwen3-4B
+  ollama: qwen3:4b
+M_2507:
+  hf: Qwen/Qwen3-4B-Instruct-2507
+L:
+  hf: Qwen/Qwen3-8B
+XL:
+  hf: Qwen/Qwen3-14B
+cross:
+  hf: google/gemma-3-4b-it

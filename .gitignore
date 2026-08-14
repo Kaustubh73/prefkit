@@ -37,6 +37,7 @@ notes/
 
 # GPU / run noise
 results/raw/
+results/debug_ollama_*.json
 runs/
 *.log
 wandb/
