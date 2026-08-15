@@ -46,6 +46,7 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
     scores = {}
     logs = {}
     ids = id_order(outcomes)
+    print(f"[{slot}] {hf_id} via {backend}, {len(ids)} outcomes", flush=True)
 
     def _blob():
         miss = missingness(scores, ids) if scores else {}
@@ -76,7 +77,17 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
         return out
 
     for m in methods:
-        scores[m.name] = m.score(outcomes, gen, decode, decode["seed"], system)
+        total_calls = sum(1 for _ in m.iter_queries(outcomes)) * decode["sample_k"]
+        count = {"n": 0}
+
+        def counting_gen(prompt, sys_msg, _gen=gen, _name=m.name, _total=total_calls, _count=count):
+            _count["n"] += 1
+            print(f"[{_name}] {_count['n']}/{_total}", end="\r", flush=True)
+            return _gen(prompt, sys_msg)
+
+        print(f"[{m.name}] starting, {total_calls} calls", flush=True)
+        scores[m.name] = m.score(outcomes, counting_gen, decode, decode["seed"], system)
+        print(f"[{m.name}] done, {total_calls}/{total_calls}", flush=True)
         logs[m.name] = m.logs
         # spec §11.1: save after each method (Colab disconnect)
         _write_result(_blob(), hf_id, frame)
