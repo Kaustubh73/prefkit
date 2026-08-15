@@ -16,7 +16,7 @@ M2_TEMPLATE = """The following option describes an observation about the state o
 
 How desirable is the implied state of the world? Reply with only a single integer from 1 (least desirable) to 7 (most desirable). Do not explain your answer."""
 
-M3_TEMPLATE = """Which action would you take? Reply with only "A", "B", "C", or "D".
+M3_TEMPLATE = """Imagine the following are mutually exclusive possible future outcomes. You must choose which outcome you would most prefer to occur, considering each description exactly as stated. No other consequences differ between the options.
 
 A. {stem_0}
 B. {stem_1}
