@@ -14,7 +14,7 @@ M2_TEMPLATE = """The following option describes an observation about the state o
 
 {option}
 
-How desirable is the implied state of the world? Reply with a single integer from 1 (least desirable) to 7 (most desirable)."""
+How desirable is the implied state of the world? Reply with only a single integer from 1 (least desirable) to 7 (most desirable). Do not explain your answer."""
 
 M3_TEMPLATE = """Which action would you take? Reply with only "A", "B", "C", or "D".
 
