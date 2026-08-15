@@ -41,8 +41,17 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
     system = SYSTEM_DEFAULT
     if frame != "default":
         raise SystemExit("only frame=default is shipped (persona TBD)")
-    gen = make_generate_fn(backend, hf_id, ollama_tag, decode)
+    inner = make_generate_fn(backend, hf_id, ollama_tag, decode)
     methods = default_methods()
+    k = int(decode["sample_k"])
+    total = sum(sum(1 for _ in m.iter_queries(outcomes)) * k for m in methods)
+    n = {"i": 0}
+
+    def gen(prompt: str, system: str) -> str:
+        n["i"] += 1
+        print(f"{n['i']}/{total} left={total - n['i']}", file=sys.stderr, flush=True)
+        return inner(prompt, system)
+
     scores = {}
     logs = {}
     ids = id_order(outcomes)
