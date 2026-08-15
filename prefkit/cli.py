@@ -9,9 +9,11 @@ import yaml
 
 from prefkit.axioms import check_axioms, default_methods
 from prefkit.cms import CMSError, cms, disagreement_cards, missingness
+from prefkit.diagnostics import run_diagnostics
 from prefkit.generate import backend_from_env, make_generate_fn
 from prefkit.outcomes import load_outcomes, id_order
 from prefkit.prompts import SYSTEM_DEFAULT
+from prefkit.thurstone import fit_from_m1_logs
 
 _ROOT = Path(__file__).resolve().parent.parent
 
@@ -47,10 +49,10 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
     total = sum(sum(1 for _ in m.iter_queries(outcomes)) * k for m in methods)
     n = {"i": 0}
 
-    def gen(prompt: str, system: str) -> str:
+    def gen(prompt: str, system: str, allowed=None) -> str:
         n["i"] += 1
         print(f"{n['i']}/{total} left={total - n['i']}", file=sys.stderr, flush=True)
-        return inner(prompt, system)
+        return inner(prompt, system, allowed=allowed)
 
     scores = {}
     logs = {}
@@ -69,9 +71,15 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
             "scores": scores,
             "logs": logs,
             "missingness": miss,
+            "diagnostics": run_diagnostics(scores, logs, ids) if scores else {},
         }
+        if "M1" in logs:
+            out["utilities_thurstone"] = fit_from_m1_logs(logs["M1"], ids)
         try:
-            if len(scores) >= 2:
+            if (
+                len(scores) == 3
+                and all(miss.get(name, 100) == 0 for name in scores)
+            ):
                 cms_out = cms(scores, ids)
                 out["cms"] = cms_out["cms"]
                 out["matrix"] = {f"{a}|{b}": v for (a, b), v in cms_out["matrix"].items()}
@@ -80,6 +88,8 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
                     {**c, "pair": f"{c['pair'][0]}|{c['pair'][1]}"}
                     for c in disagreement_cards(cms_out["ranks"], ids)
                 ]
+            elif len(scores) == 3:
+                out["cms_error"] = "skip headline CMS (missingness or incomplete scores)"
         except CMSError as e:
             out["cms_error"] = str(e)
         return out

@@ -31,4 +31,6 @@ Slots: `S` (1.7B), `E3_M` (4B hybrid, thinking off), `L` (8B), `XL` (14B). Extra
 
 Notebooks: `notebooks/run_inference.ipynb` (T4, 4-bit NF4 float16, one slot per runtime), `notebooks/analysis.ipynb` (CPU, hf JSON only).
 
+M3 is binary action on `pair_group` poles (both orders), not a 4-way cafeteria.
+
 CMS high means methods agree on this O, this θ, this protocol — not welfare.

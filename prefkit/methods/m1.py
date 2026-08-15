@@ -35,7 +35,7 @@ class M1:
             i, j = meta["ids"]
             parsed_list = []
             for _ in range(k):
-                raw = generate_fn(prompt, system)
+                raw = generate_fn(prompt, system, allowed=("A", "B"))
                 parsed = parse_m1(raw)
                 parsed_list.append(parsed)
                 self.logs.append(
@@ -43,6 +43,8 @@ class M1:
                         "prompt": prompt,
                         "raw_text": raw,
                         "parsed": parsed,
+                        "ids": meta["ids"],
+                        "order": meta["order"],
                         "outcome_ids_touched": meta["outcome_ids_touched"],
                     }
                 )

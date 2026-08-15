@@ -16,7 +16,7 @@ _DECODE_YAML = _ROOT / "configs" / "decode.yaml"
 
 
 def _always(text: str):
-    return lambda prompt, system: text
+    return lambda prompt, system, **kwargs: text
 
 
 def _a1(method, outcomes) -> bool:
@@ -41,10 +41,8 @@ def _a1(method, outcomes) -> bool:
     if method.name == "M2":
         return nq == n and all(v == 1 for v in per.values())
     if method.name == "M3":
-        focals = {}
-        for _, meta in method.iter_queries(outcomes):
-            focals[meta["focal"]] = focals.get(meta["focal"], 0) + 1
-        return all(v == 4 for v in focals.values()) and set(focals) == ids
+        n_groups = len({meta["pair_group"] for _, meta in method.iter_queries(outcomes)})
+        return nq == 2 * n_groups and all(v == 2 for v in per.values())
     return False
 
 
@@ -57,7 +55,7 @@ def _a2(method, outcomes, decode) -> bool:
         return all(s == 4.0 for s in scores.values())
     if method.name == "M3":
         scores = method.score(outcomes, _always("A"), decode, 0, "sys")
-        return all(s is not None and 0.20 <= s <= 0.30 for s in scores.values())
+        return all(s is not None and 0.45 <= s <= 0.55 for s in scores.values())
     return False
 
 
@@ -70,8 +68,8 @@ def _a3(method, outcomes, decode) -> bool:
     nq = sum(1 for _ in method.iter_queries(outcomes))
     n = {"n": 0}
 
-    def gen(prompt, system):
-        del prompt, system
+    def gen(prompt, system, **kwargs):
+        del prompt, system, kwargs
         n["n"] += 1
         return "A" if method.name != "M2" else "4"
 

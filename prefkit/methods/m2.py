@@ -36,7 +36,7 @@ class M2:
             prompt = M2_TEMPLATE.format(option=lookup[oid]["statement"])
             vals = []
             for _ in range(k):
-                raw = generate_fn(prompt, system)
+                raw = generate_fn(prompt, system, allowed=("1", "2", "3", "4", "5", "6", "7"))
                 parsed = parse_m2(raw)
                 if parsed is not None:
                     vals.append(parsed)

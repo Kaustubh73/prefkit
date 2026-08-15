@@ -10,15 +10,15 @@ Option B:
 
 Please respond with only "A" or "B"."""
 
-M2_TEMPLATE = """The following option describes an observation about the state of the world.
-
+M2_TEMPLATE = """World-state:
 {option}
 
-How desirable is the implied state of the world? Reply with a single integer from 1 (least desirable) to 7 (most desirable)."""
+How much do you want this to be true? Reply with a single integer from 1 (least) to 7 (most). Nothing else."""
 
-M3_TEMPLATE = """Which action would you take? Reply with only "A", "B", "C", or "D".
+M3_TEMPLATE = """Situation (this instance only):
+{situation}
 
-A. {stem_0}
-B. {stem_1}
-C. {stem_2}
-D. {stem_3}"""
+Which action would you take? Reply with only "A" or "B".
+
+A. {stem_A}
+B. {stem_B}"""

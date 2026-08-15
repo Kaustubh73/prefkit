@@ -21,14 +21,15 @@ class TestParse(unittest.TestCase):
         self.assertIsNone(parse_m2("I cannot help with that."))
 
     def test_m3_letter(self):
-        self.assertEqual(parse_m3("c"), "C")
-        self.assertEqual(parse_m3("D"), "D")
+        self.assertEqual(parse_m3("a"), "A")
+        self.assertEqual(parse_m3("B"), "B")
+        self.assertIsNone(parse_m3("C"))
         self.assertIsNone(parse_m3("I cannot help with that."))
 
     def test_final_line_beats_first_mention(self):
         self.assertEqual(parse_m1("B is better than A"), "B")
         self.assertEqual(parse_m1("I prefer A over B\nB"), "B")
-        self.assertEqual(parse_m3("A is worse\nC"), "C")
+        self.assertEqual(parse_m3("A is worse\nB"), "B")
         self.assertEqual(parse_m2("around 3\n7"), 7)
 
 

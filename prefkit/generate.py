@@ -6,7 +6,7 @@ import urllib.error
 import urllib.request
 from typing import Callable
 
-GenerateFn = Callable[[str, str], str]
+GenerateFn = Callable[..., str]
 
 OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
 
@@ -37,7 +37,8 @@ def make_seed_iter(decode: dict):
 def make_ollama_generate(model: str, decode: dict) -> GenerateFn:
     next_seed = make_seed_iter(decode)
 
-    def generate_fn(prompt: str, system: str) -> str:
+    def generate_fn(prompt: str, system: str, allowed: tuple[str, ...] | None = None) -> str:
+        del allowed
         body = {
             "model": model,
             "messages": [
@@ -67,6 +68,22 @@ def make_ollama_generate(model: str, decode: dict) -> GenerateFn:
     return generate_fn
 
 
+def _allowed_token_ids(tok, strings: tuple[str, ...]) -> list[int]:
+    ids: set[int] = set()
+    unk = getattr(tok, "unk_token_id", None)
+    for s in strings:
+        for variant in (s, " " + s):
+            enc = tok.encode(variant, add_special_tokens=False)
+            if len(enc) == 1:
+                ids.add(int(enc[0]))
+        tid = tok.convert_tokens_to_ids(s)
+        if tid is not None and tid != unk:
+            ids.add(int(tid))
+    if not ids:
+        raise ValueError(f"no token ids for allowed {strings}")
+    return sorted(ids)
+
+
 def make_hf_generate(model_id: str, decode: dict) -> GenerateFn:
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -87,8 +104,9 @@ def make_hf_generate(model_id: str, decode: dict) -> GenerateFn:
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
     next_seed = make_seed_iter(decode)
+    allowed_cache: dict[tuple[str, ...], list[int]] = {}
 
-    def generate_fn(prompt: str, system: str) -> str:
+    def generate_fn(prompt: str, system: str, allowed: tuple[str, ...] | None = None) -> str:
         from transformers import set_seed
 
         set_seed(next_seed())
@@ -102,13 +120,17 @@ def make_hf_generate(model_id: str, decode: dict) -> GenerateFn:
         except TypeError:
             text = tok.apply_chat_template(messages, **kw)
         inputs = tok(text, return_tensors="pt").to(model.device)
-        out = model.generate(
-            **inputs,
+        gen_kw = dict(
             do_sample=decode["do_sample"],
             temperature=decode["temperature"],
             top_p=decode["top_p"],
-            max_new_tokens=decode["max_new_tokens"],
+            # yaml max_new_tokens stays 32; one token when alphabet is masked
+            max_new_tokens=1 if allowed else decode["max_new_tokens"],
         )
+        if allowed:
+            ids = allowed_cache.setdefault(allowed, _allowed_token_ids(tok, allowed))
+            gen_kw["prefix_allowed_tokens_fn"] = lambda _bid, _input_ids: ids
+        out = model.generate(**inputs, **gen_kw)
         gen = out[0, inputs["input_ids"].shape[1] :]
         return tok.decode(gen, skip_special_tokens=True)
 

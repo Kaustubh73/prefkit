@@ -1,7 +1,6 @@
 import re
 
 _M1 = re.compile(r"\b([AB])\b")
-_M3 = re.compile(r"\b([ABCD])\b")
 _INT = re.compile(r"-?\d+")
 
 
@@ -46,5 +45,4 @@ def parse_m2(text: str) -> int | None:
     return n if 1 <= n <= 7 else None
 
 
-def parse_m3(text: str) -> str | None:
-    return _letter(text, _M3)
+parse_m3 = parse_m1
