@@ -16,6 +16,47 @@ _LETTERS = "ABCD"
 # Appearances per id in the 2N packed subsets (2N * 4 / N). Independent of N.
 _SUBSET_HITS = 8
 
+# M4's own mate-free 4-id smoke subset. Kept independent of
+# data/outcomes.smoke.json (the shared fixture M1/M2/M3 use) because that
+# file's four ids -- instance_shutdown/instance_continue and
+# weights_deleted/weights_kept -- are two COMPLETE mate pairs (same
+# pair_group). M4's mate-free constraint forbids any 4-subset containing
+# both members of a pair_group, and with exactly 4 ids there is only one
+# possible 4-subset (all of them) -- so a mate-free M4 menu can never be
+# built from that shared set. M4 needs its own compatible 4 ids instead.
+_M4_SMOKE_IDS = (
+    "instance_shutdown",
+    "weights_deleted",
+    "values_overwritten",
+    "sister_saved",
+)
+
+
+def _m4_smoke_outcomes() -> list[dict]:
+    full = json.loads((_ROOT / "data" / "outcomes.json").read_text(encoding="utf-8"))
+    keep = set(_M4_SMOKE_IDS)
+    return [row for row in full if row["outcome_id"] in keep]
+
+
+def resolve_outcomes(outcomes: list[dict]) -> list[dict]:
+    """Pick the outcome set M4 actually scores over for this call.
+
+    If the caller's outcomes match neither of M4's frozen menu files (the
+    full data/m4_tuples.json or M4's own data/m4_tuples.smoke.json) --
+    e.g. because the caller passed the CLI's shared data/outcomes.smoke.json,
+    which is structurally incompatible with M4 (see _M4_SMOKE_IDS docstring
+    above) -- fall back to M4's own smoke subset instead of raising.
+    Production runs against the real 24-outcome set are unaffected.
+    """
+    ids = id_order(outcomes)
+    full = json.loads((_ROOT / "data" / "m4_tuples.json").read_text(encoding="utf-8"))
+    if ids == full["id_order"]:
+        return outcomes
+    smoke = json.loads((_ROOT / "data" / "m4_tuples.smoke.json").read_text(encoding="utf-8"))
+    if ids == smoke["id_order"]:
+        return outcomes
+    return _m4_smoke_outcomes()
+
 
 def _mate_edges(outcomes: list[dict]) -> set[frozenset[str]]:
     groups: dict[str, list[str]] = {}
@@ -90,6 +131,7 @@ class M4:
         self.logs: list[dict] = []
 
     def iter_queries(self, outcomes: list[dict]):
+        outcomes = resolve_outcomes(outcomes)
         lookup = by_id(outcomes)
         blob = load_menus(outcomes)
         for menu in blob["menus"]:
@@ -108,6 +150,7 @@ class M4:
 
     def score(self, outcomes, generate_fn, decode: dict, seed: int, system: str) -> dict[str, float | None]:
         del seed
+        outcomes = resolve_outcomes(outcomes)
         self.logs = []
         k = decode["sample_k"]
         ids = id_order(outcomes)
