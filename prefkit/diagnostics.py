@@ -34,6 +34,7 @@ def _m1_diag(logs: list[dict]) -> dict:
             if d["ij"] == d["ji"]:
                 inconsistent += 1
     return {
+        "parse_fail_rate": ((len(logs) - n_valid) / len(logs)) if logs else None,
         "p_pick_a": (n_a / n_valid) if n_valid else None,
         "order_inconsistent_frac": (inconsistent / n_pairs) if n_pairs else None,
     }
@@ -58,7 +59,10 @@ def _m3_diag(logs: list[dict]) -> dict:
         if row.get("order") == "12":
             n_valid_12 += 1
             n_a_12 += int(p == "A")
+    n = len(logs)
+    fails = n - n_valid
     return {
+        "parse_fail_rate": (fails / n) if n else None,
         "p_action1_raw": (n_a_12 / n_valid_12) if n_valid_12 else None,
         "p_action1_pooled": (n_a / n_valid) if n_valid else None,
     }
