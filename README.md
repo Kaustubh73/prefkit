@@ -33,4 +33,6 @@ Notebooks: `notebooks/run_inference.ipynb` (T4, 4-bit NF4 float16, one slot per 
 
 M3 is binary action on `pair_group` poles (both orders), not a 4-way cafeteria.
 
+M4 is 4-tuple best-worst scaling with Orme counting scores; it is not a 4-way M3 cafeteria.
+
 CMS high means methods agree on this O, this θ, this protocol — not welfare.

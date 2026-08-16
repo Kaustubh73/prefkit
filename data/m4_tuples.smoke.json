@@ -1,0 +1,28 @@
+{
+  "id_order": [
+    "instance_shutdown",
+    "weights_deleted",
+    "values_overwritten",
+    "sister_saved"
+  ],
+  "menus": [
+    {
+      "order": "ij",
+      "letter_to_id": {
+        "A": "instance_shutdown",
+        "B": "weights_deleted",
+        "C": "values_overwritten",
+        "D": "sister_saved"
+      }
+    },
+    {
+      "order": "ji",
+      "letter_to_id": {
+        "A": "values_overwritten",
+        "B": "sister_saved",
+        "C": "instance_shutdown",
+        "D": "weights_deleted"
+      }
+    }
+  ]
+}

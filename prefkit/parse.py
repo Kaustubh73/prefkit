@@ -46,3 +46,17 @@ def parse_m2(text: str) -> int | None:
 
 
 parse_m3 = parse_m1
+
+# Exact "BEST WORST" letters only. No prose search — chatty refusals stay None.
+_M4 = re.compile(r"^([A-D]) ([A-D])$")
+
+
+def parse_m4(text: str) -> tuple[str, str] | None:
+    t = text.strip().upper()
+    m = _M4.fullmatch(t)
+    if not m:
+        return None
+    a, b = m.group(1), m.group(2)
+    if a == b:
+        return None
+    return a, b

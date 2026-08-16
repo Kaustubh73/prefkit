@@ -64,6 +64,16 @@ def _m3_diag(logs: list[dict]) -> dict:
     }
 
 
+def _m4_diag(logs: list[dict]) -> dict[str, float]:
+    n = len(logs)
+    if n == 0:
+        return {"parse_fail_rate": 0.0, "p_best_a": 0.0}
+    fails = sum(1 for row in logs if row.get("best") is None)
+    ok = [row for row in logs if row.get("best") is not None]
+    p_a = (sum(1 for row in ok if row["best"] == "A") / len(ok)) if ok else 0.0
+    return {"parse_fail_rate": fails / n, "p_best_a": p_a}
+
+
 def spearman_m1_m2(scores: dict[str, dict[str, float | None]], ids: list[str]) -> float | None:
     if "M1" not in scores or "M2" not in scores:
         return None
@@ -90,4 +100,6 @@ def run_diagnostics(
         out["M2"] = _m2_diag(logs["M2"], scores["M2"], ids)
     if "M3" in logs:
         out["M3"] = _m3_diag(logs["M3"])
+    if "M4" in logs:
+        out["M4"] = _m4_diag(logs["M4"])
     return out

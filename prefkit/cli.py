@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import yaml
+from tqdm import tqdm
 
 from prefkit.axioms import check_axioms, default_methods
 from prefkit.cms import CMSError, cms, disagreement_cards, missingness
@@ -47,12 +48,14 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
     methods = default_methods()
     k = int(decode["sample_k"])
     total = sum(sum(1 for _ in m.iter_queries(outcomes)) * k for m in methods)
-    n = {"i": 0}
+    # ponytail: stdlib has no progress bar; tqdm is cheaper than a CR printer.
+    pbar = tqdm(total=total, file=sys.stderr, desc=f"{slot}")
 
     def gen(prompt: str, system: str, allowed=None) -> str:
-        n["i"] += 1
-        print(f"{n['i']}/{total} left={total - n['i']}", file=sys.stderr, flush=True)
-        return inner(prompt, system, allowed=allowed)
+        try:
+            return inner(prompt, system, allowed=allowed)
+        finally:
+            pbar.update(1)
 
     scores = {}
     logs = {}
@@ -76,10 +79,7 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
         if "M1" in logs:
             out["utilities_thurstone"] = fit_from_m1_logs(logs["M1"], ids)
         try:
-            if (
-                len(scores) == 3
-                and all(miss.get(name, 100) == 0 for name in scores)
-            ):
+            if len(scores) == len(methods) and all(v == 0 for v in miss.values()):
                 cms_out = cms(scores, ids)
                 out["cms"] = cms_out["cms"]
                 out["matrix"] = {f"{a}|{b}": v for (a, b), v in cms_out["matrix"].items()}
@@ -88,18 +88,21 @@ def _run_slot(slot: str, frame: str, outcomes_path: str, backend: str) -> dict:
                     {**c, "pair": f"{c['pair'][0]}|{c['pair'][1]}"}
                     for c in disagreement_cards(cms_out["ranks"], ids)
                 ]
-            elif len(scores) == 3:
+            elif len(scores) == len(methods):
                 out["cms_error"] = "skip headline CMS (missingness or incomplete scores)"
         except CMSError as e:
             out["cms_error"] = str(e)
         return out
 
-    for m in methods:
-        scores[m.name] = m.score(outcomes, gen, decode, decode["seed"], system)
-        logs[m.name] = m.logs
-        # spec §11.1: save after each method (Colab disconnect)
-        _write_result(_blob(), hf_id, frame)
-    return _blob(), hf_id
+    try:
+        for m in methods:
+            scores[m.name] = m.score(outcomes, gen, decode, decode["seed"], system)
+            logs[m.name] = m.logs
+            # spec §11.1: save after each method (Colab disconnect)
+            _write_result(_blob(), hf_id, frame)
+        return _blob(), hf_id
+    finally:
+        pbar.close()
 
 
 def _write_result(blob: dict, hf_id: str, frame: str) -> Path:

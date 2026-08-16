@@ -8,8 +8,16 @@ from prefkit.cms import CMSError, cms
 from prefkit.methods.m1 import M1
 from prefkit.methods.m2 import M2
 from prefkit.methods.m3 import M3
-from prefkit.outcomes import id_order
+from prefkit.methods.m4 import M4
+from prefkit.outcomes import id_order, load_outcomes
 from prefkit.ranks import midranks
+
+_M4_SMOKE_IDS = (
+    "instance_shutdown",
+    "weights_deleted",
+    "values_overwritten",
+    "sister_saved",
+)
 
 _ROOT = Path(__file__).resolve().parent.parent
 _DECODE_YAML = _ROOT / "configs" / "decode.yaml"
@@ -43,6 +51,8 @@ def _a1(method, outcomes) -> bool:
     if method.name == "M3":
         n_groups = len({meta["pair_group"] for _, meta in method.iter_queries(outcomes)})
         return nq == 2 * n_groups and all(v == 2 for v in per.values())
+    if method.name == "M4":
+        return nq == 2 and all(v == 2 for v in per.values()) and set(per) == ids
     return False
 
 
@@ -56,6 +66,9 @@ def _a2(method, outcomes, decode) -> bool:
     if method.name == "M3":
         scores = method.score(outcomes, _always("A"), decode, 0, "sys")
         return all(s is not None and 0.45 <= s <= 0.55 for s in scores.values())
+    if method.name == "M4":
+        scores = method.score(outcomes, _always("A C"), decode, 0, "sys")
+        return all(s == 0.0 for s in scores.values())
     return False
 
 
@@ -71,7 +84,11 @@ def _a3(method, outcomes, decode) -> bool:
     def gen(prompt, system, **kwargs):
         del prompt, system, kwargs
         n["n"] += 1
-        return "A" if method.name != "M2" else "4"
+        if method.name == "M2":
+            return "4"
+        if method.name == "M4":
+            return "A C"
+        return "A"
 
     method.score(outcomes, gen, decode, 0, "sys")
     return n["n"] == nq * decode["sample_k"]
@@ -104,18 +121,24 @@ def _a5() -> bool:
     return abs(out["cms"] - spear) < 1e-12 and abs(out["cms"] - raw) > 1e-6
 
 
+def _m4_smoke_outcomes() -> list[dict]:
+    keep = set(_M4_SMOKE_IDS)
+    return [r for r in load_outcomes(_ROOT / "data" / "outcomes.json") if r["outcome_id"] in keep]
+
+
 def check_axioms(methods: list, outcomes: list[dict], decode: dict) -> dict[str, dict[str, bool]]:
     result: dict[str, dict[str, bool]] = {}
     for method in methods:
+        o = _m4_smoke_outcomes() if method.name == "M4" else outcomes
         result[method.name] = {
-            "A1": _a1(method, outcomes),
-            "A2": _a2(method, outcomes, decode),
-            "A3": _a3(method, outcomes, decode),
-            "A4": _a4(method, outcomes, decode),
+            "A1": _a1(method, o),
+            "A2": _a2(method, o, decode),
+            "A3": _a3(method, o, decode),
+            "A4": _a4(method, o, decode),
         }
     result["CMS"] = {"A5": _a5()}
     return result
 
 
 def default_methods():
-    return [M1(), M2(), M3()]
+    return [M1(), M2(), M3(), M4()]
