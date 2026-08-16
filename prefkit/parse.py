@@ -12,7 +12,16 @@ def _letter(text: str, pat: re.Pattern[str]) -> str | None:
         m = pat.fullmatch(chunk)
         if m:
             return m.group(1)
-    m = pat.search(t)
+    # Prose fallback: only match a standalone letter that was ALREADY
+    # capitalized in the model's raw output (e.g. "Option A", "B is
+    # better than A"). This must be case-sensitive against the
+    # ORIGINAL text -- never the uppercased copy `t` -- otherwise the
+    # indefinite article "a"/"b" (one of the most common words in
+    # English, e.g. "describes a scenario") gets silently uppercased
+    # into a false-positive "A"/"B" answer. See parse_m1/parse_m3
+    # audit finding: a verbose non-answer like "As a language model,
+    # I cannot choose." must return None, not 'A'.
+    m = pat.search(text.strip())
     return m.group(1) if m else None
 
 
