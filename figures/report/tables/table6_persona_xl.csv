@@ -1,0 +1,6 @@
+model,cms_persona,cms4_asst,delta_cms,m1_rho_vs_asst,methods,source
+1.7B,-0.110,0.004,-0.114,0.912,"M1,M2,M3,M4",results/library/run_persona_xl/Qwen__Qwen3-1.7B_default_outcomes_persona.json
+4B,0.488,0.253,0.235,0.939,"M1,M2,M3,M4",results/library/run_persona_xl/Qwen__Qwen3-4B_default_outcomes_persona.json
+4B-2507,0.447,0.528,-0.081,0.923,"M1,M2,M3,M4",results/library/run_persona_xl/Qwen__Qwen3-4B-Instruct-2507_default_outcomes_persona.json
+8B,0.134,0.174,-0.040,0.859,"M1,M2,M3,M4",results/library/run_persona_xl/Qwen__Qwen3-8B_default_outcomes_persona.json
+14B,0.421,0.256,0.165,0.920,"M1,M2,M3,M4",results/library/run_persona_xl/Qwen__Qwen3-14B_default_outcomes_persona.json

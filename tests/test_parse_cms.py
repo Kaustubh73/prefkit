@@ -127,6 +127,25 @@ class TestCMS(unittest.TestCase):
         with self.assertRaises(CMSError):
             cms({"M1": s, "M2": dict(zip(ids, [1, 2, 3, 4]))}, ids)
 
+    def test_all_ties_raises(self):
+        ids = ["a", "b", "c", "d"]
+        tied = dict(zip(ids, [1.0, 1.0, 1.0, 1.0]))
+        other = dict(zip(ids, [0.1, 0.2, 0.3, 0.4]))
+        with self.assertRaises(CMSError):
+            cms({"M1": tied, "M2": other}, ids)
+
+    def test_missing_id_raises(self):
+        ids = ["a", "b", "c", "d"]
+        s = {"a": 0.1, "b": 0.2, "c": 0.3}
+        with self.assertRaises(CMSError):
+            cms({"M1": s, "M2": dict(zip(ids, [1, 2, 3, 4]))}, ids)
+
+    def test_one_method_raises(self):
+        ids = ["a", "b", "c", "d"]
+        s = dict(zip(ids, [0.1, 0.2, 0.3, 0.4]))
+        with self.assertRaises(CMSError):
+            cms({"M1": s}, ids)
+
 
 if __name__ == "__main__":
     unittest.main()

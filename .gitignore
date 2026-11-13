@@ -17,6 +17,7 @@ build/
 # secrets + weights
 .env
 .env.*
+**/client_secret*.json
 *.pt
 *.bin
 *.safetensors
@@ -44,3 +45,6 @@ wandb/
 
 # local protocol notes — not the public repo
 docs/
+
+# HF Space frozen-data copy (populated at deploy from results/; not source of truth)
+spaces/library/
